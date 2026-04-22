@@ -1,4 +1,6 @@
+.git
 .vscode
 output
 *.o
+*.obj
 *.exe
