@@ -2,11 +2,13 @@
 #define ESTOQUE_H
 
 #define TAM 50
+#define nomeTAM 100
+#define marcaTAM 100
 
 struct dadosEstoque{
     int id;
-    char nome[100];
-    char marca[100];
+    char nome[nomeTAM];
+    char marca[marcaTAM];
     float preco;
 };
 

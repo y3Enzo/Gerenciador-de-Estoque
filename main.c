@@ -2,11 +2,10 @@
 #include <locale.h>
 #include <string.h>
 #include "include/estoque.h"
-#include "src/estoque.c"
 
 int main(){
     int opcao = 0;
-    setlocale(LC_ALL, "Portuguese");
+    setlocale(LC_ALL, "pt_BR.UTF-8");
     
     while (opcao != 5){
         printf("\n----- Sistema de Gerenciamento de Estoque -----\n");
