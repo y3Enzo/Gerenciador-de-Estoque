@@ -2,11 +2,12 @@
 #define ESTOQUE_H
 
 #define TAM 50
+#define idTAM 20
 #define nomeTAM 100
 #define marcaTAM 100
 
 struct dadosEstoque{
-    int id;
+    char id[idTAM];
     char nome[nomeTAM];
     char marca[marcaTAM];
     float preco;
@@ -14,6 +15,7 @@ struct dadosEstoque{
 
 typedef struct dadosEstoque dadosEstoque;
 
+int buscarId(FILE *arquivo, char *idBuscado);
 void limparBuffer();
 void adicionarProduto();
 void removerProduto();

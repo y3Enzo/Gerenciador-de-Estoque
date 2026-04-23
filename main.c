@@ -2,6 +2,7 @@
 #include <locale.h>
 #include <string.h>
 #include "include/estoque.h"
+#include "src/estoque.c"
 
 int main(){
     int opcao = 0;
@@ -19,24 +20,12 @@ int main(){
         limparBuffer();
         
         switch (opcao){
-            case 1:
-                adicionarProduto();
-                break;
-            case 2:
-                removerProduto();
-                break;
-            case 3:
-                editarProduto();
-                break;
-            case 4:
-                listarProdutos();
-                break;
-            case 5:
-                printf("----- Programa finalizado! ------\n\n");
-                break;
-            default:
-                printf("    Opção inválida! Tente novamente.\n");
-                break;
+            case 1: adicionarProduto(); break;
+            case 2: removerProduto(); break;
+            case 3: editarProduto(); break;
+            case 4: listarProdutos(); break;
+            case 5: printf("----- Programa finalizado! ------\n\n"); break;
+            default: printf("    Opção inválida! Tente novamente.\n"); break;
         }
     }
     

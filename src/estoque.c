@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <locale.h>
 #include <string.h>
 #include "../include/estoque.h"
 
@@ -8,21 +7,48 @@ void limparBuffer(){
     while((buffer = getchar()) != '\n' && buffer != EOF);
 }
 
-void adicionarProduto(){
-    dadosEstoque produto[TAM];
-    FILE *arquivo;
-    arquivo = fopen("estoque.txt", "a");
+int buscarId(FILE *arquivo, char *idBuscado){ // Retorna quantas vezes existe o id na lista
+    char linha[100] = {'\0'};
+    int validacao = 0;
 
-    if (arquivo == NULL){
-        printf("Erro ao abrir arquivo!\n");
+    while (fgets(linha, sizeof(linha), arquivo) != NULL){
+        char id[20] = {'\0'};
+
+        for (int coluna = 0; coluna < 20; coluna++){
+            if (linha[coluna] != ';'){
+                id[coluna] = linha[coluna];
+            } else {
+                id[coluna] = '\0';
+                break;
+            }
+        }
+        printf("%s x %s\n", id, idBuscado);
+        if (strcmp(id, idBuscado) == 0){
+            validacao++;
+        }
     }
+    printf("%d\n", validacao);
+    return validacao;
+}
+
+void adicionarProduto(){
+    FILE *arquivo = fopen("estoque.txt", "a");
+    FILE *arquivoLeitura = fopen("estoque.txt", "r");
+    dadosEstoque produto[TAM];
     
     printf("\n----- Adição de produto -----\n");
     
-    printf("  Id do produto: ");
-    scanf("%d", &produto->id);
-    fprintf(arquivo, "%d;", produto->id);
-    limparBuffer();
+    while (1){
+        printf("  Id do produto: ");
+        scanf(" %19[^\n]s", produto->id);
+        limparBuffer();
+        if (buscarId(arquivoLeitura, produto->id) != 0){
+            printf("    O id digitado já está registrado em outro produto! Tente novamente.\n");
+        } else {
+            break;
+        }
+    }
+    fprintf(arquivo, "%s;", produto->id);
     
     printf("  Produto: ");
     scanf("%99[^\n]", produto->nome);
@@ -42,20 +68,27 @@ void adicionarProduto(){
     printf("\nProduto adicionado com sucesso!\n");
     
     fclose(arquivo);
-    
+    fclose(arquivoLeitura);
 }
 
 void removerProduto(){
-    FILE *arquivoOriginal, *arquivoEdit;
-    char linha[100] = {'\0'}, idParaExcluir[20] = {'\0'};
-    arquivoOriginal = fopen("estoque.txt", "r");
-    arquivoEdit = fopen("estoque(1).txt", "w");
-    
+    FILE *arquivoOriginal = fopen("estoque.txt", "r");
+
+    if (arquivoOriginal == NULL){
+        printf("Erro: arquivo de dados inexistente.\n");
+    }
+
+    FILE *arquivoEdit = fopen("estoque(1).txt", "w");
+    char linha[100] = {'\0'};
+    char idParaExcluir[20] = {'\0'};
+
     printf("  Escreva o id do produto a ser removido: ");
-    scanf(" %s", idParaExcluir);
+    scanf(" %19[^\n]s", idParaExcluir);
     limparBuffer();
+
     while (fgets(linha, sizeof(linha), arquivoOriginal) != NULL){
         char id[20] = {'\0'};
+
         for (int coluna = 0; coluna < 20; coluna++){
             if (linha[coluna] != ';'){
                 id[coluna] = linha[coluna];
@@ -64,6 +97,7 @@ void removerProduto(){
                 break;
             }
         }
+
         if (strcmp(id, idParaExcluir) != 0){
             fprintf(arquivoEdit, "%s", linha);
         }   
@@ -77,15 +111,24 @@ void removerProduto(){
 }
 
 void editarProduto(){
-    FILE *arquivoOriginal, *arquivoEdit;
-    char linha[100] = {'\0'}, idParaEditar[20] = {'\0'}, novoId[20] = {'\0'};
-    char novoProduto[nomeTAM] = {'\0'}, novaMarca[marcaTAM] = {'\0'}, novoPreco[10] = {'\0'};
-    arquivoOriginal = fopen("estoque.txt", "r");
-    arquivoEdit = fopen("estoque(2).txt", "w");
+    FILE *arquivoOriginal = fopen("estoque.txt", "r");
+
+    if (arquivoOriginal == NULL){
+        printf("Erro: arquivo de dados inexistente.\n");
+    }
+
+    FILE *arquivoEdit = fopen("estoque(2).txt", "w");
+
+    char linha[100] = {'\0'};
+    char idParaEditar[20] = {'\0'};
+    char novoId[20] = {'\0'};
+    char novoProduto[nomeTAM] = {'\0'};
+    char novaMarca[marcaTAM] = {'\0'};
+    char novoPreco[10] = {'\0'};
 
     printf("\n----- Edição de Produto -----\n");
     printf("    Escreva o id do produto a ser editado: ");
-    scanf(" %s", idParaEditar);
+    scanf(" %19[^\n]s", idParaEditar);
     limparBuffer();
 
     while(fgets(linha, sizeof(linha), arquivoOriginal)){
@@ -103,20 +146,20 @@ void editarProduto(){
             fprintf(arquivoEdit, "%s", linha);
         } else {
             printf("    Id do produto (id antigo: %s): ", idParaEditar);
-            scanf(" %s", novoId);
+            scanf(" %19[^\n]s", novoId);
             fprintf(arquivoEdit, "%s;", novoId);
 
             printf("    Produto: ");
-            scanf(" %s", novoProduto);
+            scanf(" %99[^\n]s", novoProduto);
             fprintf(arquivoEdit, "%s;", novoProduto);
 
             printf("    Marca: ");
-            scanf(" %s", novaMarca);
+            scanf(" %99[^\n]s", novaMarca);
             fprintf(arquivoEdit, "%s;", novaMarca);
 
             printf("    Preço: ");
-            scanf(" %s", novoPreco);
-            fprintf(arquivoEdit, "%s;\n", novaMarca);
+            scanf(" %9[^\n]s", novoPreco);
+            fprintf(arquivoEdit, "%s;\n", novoPreco);
         
             printf("\nProduto editado com sucesso!\n");
         }
@@ -130,20 +173,26 @@ void editarProduto(){
 }
 
 void listarProdutos(){
-    FILE *arquivo;
-    arquivo = fopen("estoque.txt", "r");
-    char linha[100] = {'\0'};
+    FILE *arquivo = fopen("estoque.txt", "r");
 
     if (arquivo == NULL){
-        printf("Erro ao ler arquivo!\n");
+        printf("Erro: arquivo de dados inexistente.\n");
     }
+
+    char linha[100] = {'\0'};
 
     printf("\n----- Lista de Produtos -----\n");
 
     while (fgets(linha, sizeof(linha), arquivo) != NULL){
-        int item = 0, index = 0;
-        char id[20] = {'\0'}, produto[nomeTAM] = {'\0'}, marca[marcaTAM] = {'\0'}, preco[10] = {'\0'};
-        int idIndex = 0, produtoIndex = 0, marcaIndex = 0;
+        char id[20] = {'\0'};
+        char produto[nomeTAM] = {'\0'};
+        char marca[marcaTAM] = {'\0'};
+        char preco[10] = {'\0'};
+        int item = 0;
+        int index = 0;
+        int idIndex = 0;
+        int produtoIndex = 0;
+        int marcaIndex = 0;
         int precoIndex = 0;
         
         while ((linha[index] != '\0') && (linha[index] != '\n')){
@@ -160,8 +209,13 @@ void listarProdutos(){
             }
             index++;
         }
-        idIndex = 0, produtoIndex = 0, marcaIndex = 0;
-        precoIndex=0, index = 0, item = 0;
+        idIndex = 0;
+        produtoIndex = 0;
+        marcaIndex = 0;
+        precoIndex=0;
+        index = 0;
+        item = 0;
+
         printf("  Id: %s\n", id);
         printf("  Produto: %s\n", produto);
         printf("  Marca: %s\n", marca);
