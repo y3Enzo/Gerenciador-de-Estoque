@@ -2,7 +2,6 @@
 #include <locale.h>
 #include <string.h>
 #include "include/estoque.h"
-#include "src/estoque.c"
 
 int main(){
     int opcao = 0;

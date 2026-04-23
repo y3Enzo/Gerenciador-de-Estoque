@@ -28,6 +28,7 @@ int buscarId(FILE *arquivo, char *idBuscado){ // Retorna quantas vezes existe o 
         }
     }
     printf("%d\n", validacao);
+    rewind(arquivo);
     return validacao;
 }
 
@@ -35,14 +36,15 @@ void adicionarProduto(){
     FILE *arquivo = fopen("estoque.txt", "a");
     FILE *arquivoLeitura = fopen("estoque.txt", "r");
     dadosEstoque produto[TAM];
-    
+    char idBuscado[20] = {'\0'};
+
     printf("\n----- Adição de produto -----\n");
     
     while (1){
         printf("  Id do produto: ");
-        scanf(" %19[^\n]s", produto->id);
+        scanf(" %19[^\n]s", idBuscado);
         limparBuffer();
-        if (buscarId(arquivoLeitura, produto->id) != 0){
+        if (buscarId(arquivoLeitura, idBuscado) != 0){
             printf("    O id digitado já está registrado em outro produto! Tente novamente.\n");
         } else {
             break;
@@ -86,21 +88,8 @@ void removerProduto(){
     scanf(" %19[^\n]s", idParaExcluir);
     limparBuffer();
 
-    while (fgets(linha, sizeof(linha), arquivoOriginal) != NULL){
-        char id[20] = {'\0'};
-
-        for (int coluna = 0; coluna < 20; coluna++){
-            if (linha[coluna] != ';'){
-                id[coluna] = linha[coluna];
-            } else {
-                id[coluna] = '\0';
-                break;
-            }
-        }
-
-        if (strcmp(id, idParaExcluir) != 0){
-            fprintf(arquivoEdit, "%s", linha);
-        }   
+    if (buscarId(arquivoOriginal, idParaExcluir) != 0){
+        fprintf(arquivoEdit, "%s", linha);
     }
 
     fclose(arquivoEdit);

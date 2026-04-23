@@ -1,0 +1,3 @@
+0;arroz;cristal;10,00;
+1;refrigerante;coca-cola;10.00;
+2;macarrao;bellini;15.50;
