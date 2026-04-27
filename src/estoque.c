@@ -7,7 +7,7 @@ void limparBuffer(){
     while((buffer = getchar()) != '\n' && buffer != EOF);
 }
 
-int buscarId(FILE *arquivo, char *idBuscado){ // Retorna quantas vezes existe o id na lista
+int buscarId(FILE *arquivo, char *idBuscado){ // Retorna quantas vezes o id foi encontrado na lista
     char linha[100] = {'\0'};
     int validacao = 0;
 
@@ -22,7 +22,6 @@ int buscarId(FILE *arquivo, char *idBuscado){ // Retorna quantas vezes existe o 
                 break;
             }
         }
-        printf("%s x %s\n", id, idBuscado);
         if (strcmp(id, idBuscado) == 0){
             validacao++;
         }
@@ -30,6 +29,26 @@ int buscarId(FILE *arquivo, char *idBuscado){ // Retorna quantas vezes existe o 
     printf("%d\n", validacao);
     rewind(arquivo);
     return validacao;
+}
+
+void removerDaLista(FILE *arquivoLeitura, FILE *arquivoEscrita, char *idBuscado){
+    char linha[100] = {'\0'};
+
+    while (fgets(linha, sizeof(linha), arquivoLeitura) != NULL){
+        char id[20] = {'\0'};
+
+        for (int coluna = 0; coluna < 20; coluna++){
+            if (linha[coluna] != ';'){
+                id[coluna] = linha[coluna];
+            } else {
+                id[coluna] = '\0';
+                break;
+            }
+        }
+        if (strcmp(id, idBuscado) != 0){
+            fprintf(arquivoEscrita, "%s", linha);
+        }
+    }
 }
 
 void adicionarProduto(){
@@ -50,7 +69,8 @@ void adicionarProduto(){
             break;
         }
     }
-    fprintf(arquivo, "%s;", produto->id);
+
+    fprintf(arquivo, "%s;", idBuscado);
     
     printf("  Produto: ");
     scanf("%99[^\n]", produto->nome);
@@ -75,22 +95,19 @@ void adicionarProduto(){
 
 void removerProduto(){
     FILE *arquivoOriginal = fopen("estoque.txt", "r");
-
+    // Declarações de variáveis separadas para tratamento de erro com mais segurança
     if (arquivoOriginal == NULL){
         printf("Erro: arquivo de dados inexistente.\n");
+        return;
     }
 
     FILE *arquivoEdit = fopen("estoque(1).txt", "w");
-    char linha[100] = {'\0'};
     char idParaExcluir[20] = {'\0'};
 
     printf("  Escreva o id do produto a ser removido: ");
     scanf(" %19[^\n]s", idParaExcluir);
     limparBuffer();
-
-    if (buscarId(arquivoOriginal, idParaExcluir) != 0){
-        fprintf(arquivoEdit, "%s", linha);
-    }
+    removerDaLista(arquivoOriginal, arquivoEdit, idParaExcluir);
 
     fclose(arquivoEdit);
     fclose(arquivoOriginal);
